@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Рассылка {{ object.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Рассылка №{{ object.id }}</h2>
+
+        <div>
+            <a href="{% url 'mailing:mailing_update' object.pk %}" class="btn btn-warning me-2">
+                Редактировать
+            </a>
+            <a href="{% url 'mailing:mailing_delete' object.pk %}" class="btn btn-danger">
+                Удалить
+            </a>
+        </div>
+    </div>
+
+    <!-- Статистика попыток -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-success text-white">
+            Статистика отправок
+        </div>
+
+        <div class="card-body">
+
+            <p><strong>Успешных попыток:</strong> {{ attempts_success }}</p>
+            <p><strong>Неуспешных попыток:</strong> {{ attempts_failed }}</p>
+            <p><strong>Всего попыток:</strong> {{ attempts_total }}</p>
+
+            <hr>
+
+            <h5>Журнал попыток:</h5>
+
+            {% if object.attempts.all %}
+            <ul class="list-group">
+                {% for a in object.attempts.all %}
+                <li class="list-group-item">
+                    <div>
+                        <strong>{{ a.date_mailing|date:"d.m.Y H:i" }}</strong> —
+                        <span class="{% if a.status == 'Успешно' %}text-success{% else %}text-danger{% endif %}">
+                            {{ a.status }}
+                        </span>
+                    </div>
+                    <div class="text-muted small mt-1">
+                        Ответ сервера: {{ a.answer }}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted">Пока нет ни одной попытки отправки.</p>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <!-- Карточка с основной информацией -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-dark text-white">
+            Основная информация
+        </div>
+        <div class="card-body">
+            <p><strong>Статус:</strong> {{ object.status }}</p>
+            <p><strong>Дата начала:</strong> {{ object.start|date:"d.m.Y H:i" }}</p>
+            <p><strong>Дата окончания:</strong> {{ object.end|date:"d.m.Y H:i" }}</p>
+            <p><strong>Сообщение:</strong> {{ object.message.header }}</p>
+
+            <hr>
+
+            <form method="post" action="{% url 'mailing:mailing_send' object.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">
+                    Отправить вручную
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Список получателей -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            Получатели
+        </div>
+
+        <div class="card-body">
+            {% if object.recipients.all %}
+                <ul class="list-group">
+                    {% for r in object.recipients.all %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ r.full_name }}</strong><br>
+                                <span class="text-muted">{{ r.email }}</span>
+                            </div>
+                            <a href="{% url 'mailing:recipients_detail' r.pk %}"
+                               class="btn btn-sm btn-outline-primary">
+                                Открыть
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">Нет получателей.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if user.is_staff %}
+    <form action="{% url 'users:mailing_disable' object.pk %}" method="post">
+        {% csrf_token %}
+        <button class="btn btn-danger mt-3">Отключить рассылку</button>
+    </form>
+    {% endif %}
+
+</div>
+{% endblock %}

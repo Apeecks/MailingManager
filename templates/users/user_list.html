@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Пользователи</h2>
+
+    <table class="table table-striped">
+        <tr>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Активен</th>
+            <th>Действия</th>
+        </tr>
+
+        {% for user in users %}
+            <tr>
+                <td>{{ user.email }}</td>
+                <td>{{ user.username }}</td>
+                <td>
+                    {% if user.is_active %}
+                        Активен
+                    {% else %}
+                        Заблокирован
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'users:block_user' user.pk %}" class="btn btn-sm btn-danger">
+                        Блокировать
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

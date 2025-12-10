@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Сообщение {{ object.header }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>{{ object.header }}</h2>
+        <div>
+            <a href="{% url 'mailing:message_update' object.pk %}" class="btn btn-warning me-2">
+                Редактировать
+            </a>
+            <a href="{% url 'mailing:message_delete' object.pk %}" class="btn btn-danger">
+                Удалить
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            Текст сообщения
+        </div>
+        <div class="card-body">
+            <p>{{ object.body }}</p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

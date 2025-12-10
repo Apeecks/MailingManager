@@ -1,3 +1,7 @@
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+
 from django.db import models
 
 
@@ -15,6 +19,11 @@ class MailingRecipients(models.Model):
     )
     comment = models.TextField(
         verbose_name='Comment',
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="recipients",
     )
 
     def __str__(self):
@@ -39,6 +48,11 @@ class Message(models.Model):
     )
     body = models.TextField(
         verbose_name='Тело письма',
+    )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="messages",
     )
 
     def __str__(self):
@@ -65,7 +79,8 @@ class Mailing(models.Model):
     )
     status = models.CharField(
         max_length=10,
-        verbose_name='Статус'
+        verbose_name='Статус',
+        default="Создана"
     )
     message = models.ForeignKey(
         Message,
@@ -76,10 +91,21 @@ class Mailing(models.Model):
         MailingRecipients,
         related_name='recipients'
     )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="mailings",
+    )
 
     def __str__(self):
         return f"Рассылка {self.id}, {self.status}"
 
+    def clean(self):
+        now = timezone.now()
+        if self.start < now:
+            raise ValidationError("Дата начала не может быть в прошлом.")
+        if self.start >= self.end:
+            raise ValidationError("Дата начала должна быть раньше окончания.")
 
     class Meta:
         verbose_name = "Инфо"

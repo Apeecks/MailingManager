@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+
+    <!-- Успешных попыток -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Успешных попыток</h5>
+                <p class="display-6 text-success fw-bold">{{ attempts_success }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Неуспешных попыток -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Неуспешных попыток</h5>
+                <p class="display-6 text-danger fw-bold">{{ attempts_failed }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Всего попыток -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Всего отправлено сообщений</h5>
+                <p class="display-6 text-primary fw-bold">{{ attempts_total }}</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
