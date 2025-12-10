@@ -1,37 +1,38 @@
 {% extends "base.html" %}
 {% block title %}Главная{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center mt-4">
+<h2 class="mb-4">Статистика рассылок</h2>
 
-    <!-- Успешных попыток -->
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-body text-center">
-                <h5 class="card-title">Успешных попыток</h5>
-                <p class="display-6 text-success fw-bold">{{ attempts_success }}</p>
-            </div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h5>Всего рассылок</h5>
+            <p class="display-6">{{ total_mailings }}</p>
         </div>
     </div>
 
-    <!-- Неуспешных попыток -->
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-body text-center">
-                <h5 class="card-title">Неуспешных попыток</h5>
-                <p class="display-6 text-danger fw-bold">{{ attempts_failed }}</p>
-            </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h5>Активные рассылки</h5>
+            <p class="display-6 text-success">{{ active_mailings }}</p>
         </div>
     </div>
 
-    <!-- Всего попыток -->
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-body text-center">
-                <h5 class="card-title">Всего отправлено сообщений</h5>
-                <p class="display-6 text-primary fw-bold">{{ attempts_total }}</p>
-            </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h5>Уникальных получателей</h5>
+            <p class="display-6 text-primary">{{ unique_recipients }}</p>
         </div>
     </div>
-
 </div>
+
+<hr class="my-4">
+
+<h4>Попытки отправки</h4>
+<ul class="list-group">
+    <li class="list-group-item">Успешно: {{ attempts_success }}</li>
+    <li class="list-group-item">Неуспешно: {{ attempts_failed }}</li>
+    <li class="list-group-item">Всего: {{ attempts_total }}</li>
+</ul>
 {% endblock %}

@@ -1,7 +1,8 @@
-from django.utils import timezone
 from django.core.mail import send_mail
+from django.utils import timezone
 
 from .models import MailingIsSuccess
+
 
 class MailingServices:
     @staticmethod
@@ -15,6 +16,10 @@ class MailingServices:
 
     @staticmethod
     def update_mailing_status(mailing):
+
+        if mailing.status == "Отключена админом":
+            return mailing.status
+
         new_status = MailingServices.calculate_status(mailing)
         if mailing.status != new_status:
             mailing.status = new_status

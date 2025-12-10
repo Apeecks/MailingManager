@@ -1,35 +1,22 @@
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login
-from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import LoginView, LogoutView
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView
-from django.shortcuts import render
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.contrib.auth.tokens import default_token_generator
-from django.conf import settings
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.views.generic import ListView
-from django.shortcuts import redirect, get_object_or_404
-from django.contrib import messages
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.views import View
+from django.views.generic import DetailView, ListView, UpdateView
+from django.views.generic.edit import CreateView
 
-from .forms import CustomUserCreationForm
-from .models import CustomUser
 from mailing.models import Mailing
 
-
-class DisableMailingView(UserPassesTestMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_staff
-
-    def post(self, request, pk):
-        mailing = get_object_or_404(Mailing, pk=pk)
-        mailing.status = "Завершена"
-        mailing.save(update_fields=["status"])
-        messages.success(request, "Рассылка отключена менеджером.")
-        return redirect("mailing:mailing_detail", pk=pk)
+from .forms import CustomUserCreationForm, UserProfileForm
+from .models import CustomUser
 
 
 class BlockUserView(UserPassesTestMixin, View):
@@ -52,6 +39,28 @@ class UserListView(UserPassesTestMixin, ListView):
 
     def test_func(self):
         return self.request.user.is_staff
+
+
+class ActivateView(View):
+    """
+    Активирует аккаунт по uidb64 + token и (опционально) логинит пользователя.
+    URL: /users/activate/<uidb64>/<token>/
+    """
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            # логиним и редиректим (если хочешь — оставь без логина)
+            login(request, user)
+            return render(request, 'users/activate_done.html', {'user': user})
+        else:
+            return render(request, 'users/activate_invalid.html')
 
 
 class RegisterView(CreateView):
@@ -83,7 +92,7 @@ class RegisterView(CreateView):
         send_mail(subject, message, from_email, recipient_list, fail_silently=False)
 
 
-class RegisterDoneView(  CreateView):
+class RegisterDoneView(CreateView):
     template_name = "users/register_done.html"
 
 
@@ -104,26 +113,22 @@ class CustomLoginView(LoginView):
 
 
 class CustomLogoutView(LogoutView):
-    next_page = reverse_lazy("catalog:home")
-    
+    next_page = reverse_lazy("mailing:index")
 
-class ActivateView(View):
-    """
-    Активирует аккаунт по uidb64 + token и (опционально) логинит пользователя.
-    URL: /users/activate/<uidb64>/<token>/
-    """
-    def get(self, request, uidb64, token):
-        try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = CustomUser.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
-            user = None
 
-        if user is not None and default_token_generator.check_token(user, token):
-            user.is_active = True
-            user.save()
-            # логиним и редиректим (если хочешь — оставь без логина)
-            login(request, user)
-            return render(request, 'users/activate_done.html', {'user': user})
-        else:
-            return render(request, 'users/activate_invalid.html')
+class ProfileView(LoginRequiredMixin, DetailView):
+    model = CustomUser
+    template_name = "users/profile.html"
+
+    def get_object(self):
+        return self.request.user
+
+
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = CustomUser
+    form_class = UserProfileForm
+    template_name = "users/profile_edit.html"
+    success_url = reverse_lazy("users:profile")
+
+    def get_object(self):
+        return self.request.user

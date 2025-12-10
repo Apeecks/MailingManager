@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Профиль пользователя</h2>
+
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Телефон:</strong> {{ user.phone_number|default:"—" }}</p>
+    <p><strong>Страна:</strong> {{ user.country|default:"—" }}</p>
+
+    {% if user.avatar %}
+        <p><strong>Аватар:</strong></p>
+        <img src="{{ user.avatar.url }}" width="150" style="border-radius: 12px;">
+    {% endif %}
+
+    <br>
+
+    <a class="btn-primary" href="{% url 'users:profile_edit' %}">Редактировать профиль</a>
+</div>
+{% endblock %}

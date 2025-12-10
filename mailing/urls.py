@@ -1,10 +1,13 @@
 from django.urls import path
+
 from . import views
 
 app_name = "mailing"
 
 urlpatterns = [
     path('mailing/', views.IndexView.as_view(), name='index'),
+
+    path("attempts/", views.AttemptListView.as_view(), name="attempt_list"),
 
     path('recipients/', views.RecipientListView.as_view(), name='recipient_list'),
     path('recipients/add/', views.RecipientCreateView.as_view(), name='recipients_create'),
@@ -24,5 +27,6 @@ urlpatterns = [
     path('mailings/<int:pk>/edit/', views.MailingUpdateView.as_view(), name='mailing_update'),
     path('mailings/<int:pk>/delete/', views.MailingDeleteView.as_view(), name='mailing_delete'),
 
-    path('mailing/<int:pk>/send/', views.MailingSendView.as_view(), name='mailing_send'),
+    path('mailings/<int:pk>/disable/', views.DisableMailingView.as_view(), name='mailing_disable'),
+    path('mailings/<int:pk>/send/', views.MailingSendView.as_view(), name='mailing_send'),
 ]

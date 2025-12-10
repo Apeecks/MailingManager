@@ -1,5 +1,6 @@
 from django import forms
-from .models import MailingRecipients, Message, Mailing
+
+from .models import Mailing, MailingRecipients, Message
 
 
 class BaseStyledForm(forms.ModelForm):
@@ -61,4 +62,3 @@ class MailingForm(BaseStyledForm):
         self.fields["end"].input_formats = ["%Y-%m-%dT%H:%M", "%d.%m.%y %H:%M"]
 
         self.fields["recipients"].widget.attrs.update({"size": 5})
-

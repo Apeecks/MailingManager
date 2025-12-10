@@ -1,15 +1,54 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>{% block title %}Сервис рассылок{% endblock %}</title>
-  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <title>{% block title %}Mailing Service{% endblock %}</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+
+
 </head>
 <body>
 
-{% include 'nav.html' %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+    <a class="navbar-brand" href="{% url 'mailing:index' %}">Mailing Manager</a>
+
+    {% if user.is_authenticated %}
+    <div class="navbar-nav">
+        <a class="nav-link" href="{% url 'mailing:recipient_list' %}">Получатели</a>
+        <a class="nav-link" href="{% url 'mailing:message_list' %}">Сообщения</a>
+        <a class="nav-link" href="{% url 'mailing:mailing_list' %}">Рассылки</a>
+        <a class="nav-link" href="{% url 'mailing:attempt_list' %}">Попытки рассылки</a>
+        {% if perms.users.can_view_users %}
+        <a class="nav-link" href="{% url 'users:user_list' %}">Пользователи</a>
+        {% endif %}
+        <a class="nav-link" href="{% url 'users:profile' %}">Профиль</a>
+        <form action="{% url 'users:logout' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button class="nav-link btn btn-link text-danger">Выход</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="navbar-nav">
+        <a class="nav-link text-success" href="{% url 'users:login' %}">Вход</a>
+        <a class="nav-link" href="{% url 'users:register' %}">Регистрация</a>
+    </div>
+    {% endif %}
+</nav>
+
 {% include 'header.html' %}
 
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 <div class="container">
     {% block content %}{% endblock %}

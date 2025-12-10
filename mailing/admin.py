@@ -1,7 +1,6 @@
-# yourapp/admin.py
 from django.contrib import admin
-from django.core.management import call_command
-from .models import MailingRecipients, Message, Mailing, MailingIsSuccess
+
+from .models import Mailing, MailingIsSuccess, MailingRecipients, Message
 
 
 @admin.register(MailingRecipients)

@@ -1,35 +1,44 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container mt-4">
-    <h2>Пользователи</h2>
+<div class="card">
+    <h2>Пользователи сервиса</h2>
 
-    <table class="table table-striped">
-        <tr>
-            <th>Email</th>
-            <th>Username</th>
-            <th>Активен</th>
-            <th>Действия</th>
-        </tr>
-
-        {% for user in users %}
+    <table class="table">
+        <thead>
             <tr>
-                <td>{{ user.email }}</td>
-                <td>{{ user.username }}</td>
+                <th>Email</th>
+                <th>Страна</th>
+                <th>Телефон</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for u in users %}
+            <tr>
+                <td>{{ u.email }}</td>
+                <td>{{ u.country }}</td>
+                <td>{{ u.phone_number }}</td>
                 <td>
-                    {% if user.is_active %}
+                    {% if u.is_active %}
                         Активен
                     {% else %}
                         Заблокирован
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'users:block_user' user.pk %}" class="btn btn-sm btn-danger">
-                        Блокировать
-                    </a>
+                    {% if perms.users.can_block_users %}
+                        <a class="btn-small" href="{% url 'users:block_user' u.pk %}">
+                            {% if u.is_active %}Блокировать{% else %}Разблокировать{% endif %}
+                        </a>
+                    {% endif %}
                 </td>
             </tr>
+        {% empty %}
+            <tr><td colspan="5">Нет пользователей.</td></tr>
         {% endfor %}
+        </tbody>
     </table>
 </div>
 {% endblock %}
