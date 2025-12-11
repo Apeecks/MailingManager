@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Попытки рассылки{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Попытки рассылок</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Рассылка</th>
+                <th>Статус</th>
+                <th>Ответ сервера</th>
+                <th>Дата</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for attempt in object_list %}
+                <tr>
+                    <td>{{ attempt.id }}</td>
+                    <td>{{ attempt.mailing.id }} — {{ attempt.mailing.message.header }}</td>
+                    <td>{{ attempt.status }}</td>
+                    <td>{{ attempt.answer }}</td>
+                    <td>{{ attempt.attempt_time }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">Пока нет попыток отправки.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

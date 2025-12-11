@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>Пользователи сервиса</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Страна</th>
+                <th>Телефон</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for u in users %}
+            <tr>
+                <td>{{ u.email }}</td>
+                <td>{{ u.country }}</td>
+                <td>{{ u.phone_number }}</td>
+                <td>
+                    {% if u.is_active %}
+                        Активен
+                    {% else %}
+                        Заблокирован
+                    {% endif %}
+                </td>
+                <td>
+                    {% if perms.users.can_block_users %}
+                        <a class="btn-small" href="{% url 'users:block_user' u.pk %}">
+                            {% if u.is_active %}Блокировать{% else %}Разблокировать{% endif %}
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">Нет пользователей.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+/* --- ГЛОБАЛЬНЫЕ НАСТРОЙКИ --- */
+body {
+    background: #f5f7fa; /* Твой цвет */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+/* --- NAVBAR (если есть) --- */
+.navbar {
+    margin-bottom: 20px; /* Твой стиль */
+    background: white;
+    padding: 10px 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border-radius: 12px; /* Твой стиль */
+}
+
+/* --- КАРТОЧКИ --- */
+.card {
+    background: white;
+    margin: 30px auto;
+    padding: 25px 30px;
+    border-radius: 12px; /* Твой стиль */
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.card.error {
+    border-left: 5px solid #c62828;
+}
+
+/* --- ТЕКСТ --- */
+h2 {
+    margin-top: 0;
+}
+
+.small {
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+/* --- КНОПКИ --- */
+.btn-primary {
+    display: inline-block;
+    padding: 10px 18px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #1e4ecf;
+}
+
+.btn-small {
+    padding: 5px 10px;
+    background: #6b7280;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+/* --- ТАБЛИЦЫ --- */
+table.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+table.table th,
+table.table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}

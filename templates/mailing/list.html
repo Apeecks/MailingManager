@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Рассылки{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Рассылки</h2>
+    {% if user.is_authenticated %}
+    <a class="btn btn-success" href="{% url 'mailing:mailing_create' %}">Создать рассылку</a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm p-3">
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Тема</th>
+            <th>Статус</th>
+            <th>Старта</th>
+            <th>Окончание</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for mailing in object_list %}
+        <tr>
+            <td>{{ mailing.id }}</td>
+            <td>{{ mailing.message.header }}</td>
+            <td>{{ mailing.status }}</td>
+            <td>{{ mailing.start }}</td>
+            <td>{{ mailing.end }}</td>
+            <td>
+                <a href="{% url 'mailing:mailing_detail' mailing.pk %}" class="btn btn-sm btn-primary">Подробнее</a>
+
+                {% if mailing.owner == user %}
+                    <a href="{% url 'mailing:mailing_update' mailing.pk %}" class="btn btn-sm btn-warning">Изменить</a>
+                    <a href="{% url 'mailing:mailing_delete' mailing.pk %}" class="btn btn-sm btn-danger">Удалить</a>
+                {% endif %}
+
+                {% if perms.mailing.can_manage_messages %}
+                    <span class="badge bg-info">{{ mailing.owner }}</span>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

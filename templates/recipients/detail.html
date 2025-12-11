@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Получатель{% endblock %}
+
+{% block content %}
+<h2>Получатель: {{ object.email }}</h2>
+
+<div class="card shadow-sm p-4 mb-4">
+    <p><strong>ФИО:</strong> {{ object.full_name }}</p>
+    <p><strong>Комментарий:</strong> {{ object.comment }}</p>
+    <p><strong>Владелец:</strong> {{ object.owner }}</p>
+</div>
+
+<div class="d-flex gap-2">
+    {% if object.owner == user %}
+        <a href="{% url 'mailing:recipients_update' object.pk %}" class="btn btn-warning">Изменить</a>
+        <a href="{% url 'mailing:recipients_delete' object.pk %}" class="btn btn-danger">Удалить</a>
+    {% endif %}
+</div>
+
+{% endblock %}

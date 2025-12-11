@@ -1,4 +1,7 @@
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 
 class MailingRecipients(models.Model):
@@ -16,10 +19,14 @@ class MailingRecipients(models.Model):
     comment = models.TextField(
         verbose_name='Comment',
     )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="recipients",
+    )
 
     def __str__(self):
         return self.full_name
-
 
     class Meta:
         verbose_name = "Получатель"
@@ -28,6 +35,9 @@ class MailingRecipients(models.Model):
             "email",
         ]
         db_table = "MailingRecipients"
+        permissions = [
+            ("can_manage_recipients", "Может управлять всеми получателями"),
+        ]
 
 
 class Message(models.Model):
@@ -40,10 +50,14 @@ class Message(models.Model):
     body = models.TextField(
         verbose_name='Тело письма',
     )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="messages",
+    )
 
     def __str__(self):
         return self.header
-
 
     class Meta:
         verbose_name = "Текст"
@@ -52,6 +66,9 @@ class Message(models.Model):
             "header",
         ]
         db_table = "Message"
+        permissions = [
+            ("can_manage_messages", "Может управлять всеми сообщениями"),
+        ]
 
 
 class Mailing(models.Model):
@@ -65,7 +82,8 @@ class Mailing(models.Model):
     )
     status = models.CharField(
         max_length=10,
-        verbose_name='Статус'
+        verbose_name='Статус',
+        default="Создана"
     )
     message = models.ForeignKey(
         Message,
@@ -76,10 +94,21 @@ class Mailing(models.Model):
         MailingRecipients,
         related_name='recipients'
     )
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="mailings",
+    )
 
     def __str__(self):
         return f"Рассылка {self.id}, {self.status}"
 
+    def clean(self):
+        now = timezone.now()
+        if self.start < now:
+            raise ValidationError("Дата начала не может быть в прошлом.")
+        if self.start >= self.end:
+            raise ValidationError("Дата начала должна быть раньше окончания.")
 
     class Meta:
         verbose_name = "Инфо"
@@ -89,6 +118,10 @@ class Mailing(models.Model):
             "start",
         ]
         db_table = "Mailing"
+        permissions = [
+            ("can_disable_mailing", "Может отключать рассылку"),
+            ("can_view_all_mailings", "Может просматривать все рассылки"),
+        ]
 
 
 class MailingIsSuccess(models.Model):
@@ -113,7 +146,6 @@ class MailingIsSuccess(models.Model):
 
     def __str__(self):
         return f"Попытка {self.id}, {self.status}"
-
 
     class Meta:
         verbose_name = "Попытка"
