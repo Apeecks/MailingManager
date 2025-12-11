@@ -48,18 +48,13 @@ class MailingSendView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         mailing = get_object_or_404(Mailing, pk=pk)
-        print("DEBUG: SEND VIEW EXECUTED", mailing.id)
-        print("DEBUG: CAN SEND =", MailingServices.can_send_now(mailing))
-        print("DEBUG: NOW =", timezone.now())
-        print("DEBUG: START =", mailing.start)
-        print("DEBUG: END =", mailing.end)
-
-        mailing = get_object_or_404(Mailing, pk=pk)
 
         MailingServices.update_mailing_status(mailing)
 
-        if not MailingServices.can_send_now(mailing):
-            messages.error(request, "Отправка запрещена в текущее время (вне окна start..end).")
+        can_send, error_message = MailingServices.can_send_now(mailing)
+
+        if not can_send:
+            messages.error(request, error_message)
             return redirect('mailing:mailing_detail', pk=pk)
 
         result = MailingServices.send_mailing(mailing, from_email='Apeecks@mail.ru')
@@ -92,7 +87,7 @@ class DisableMailingView(PermissionRequiredMixin, View):
 
     def post(self, request, pk):
         mailing = get_object_or_404(Mailing, pk=pk)
-        mailing.status = "Отключена админом"
+        mailing.status = "Отключена"
         mailing.save(update_fields=["status"])
         messages.success(request, "Рассылка отключена менеджером.")
         return redirect("mailing:mailing_detail", pk=pk)
@@ -240,13 +235,27 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-
 class MailingUpdateView(LoginRequiredMixin, OwnerOrPermissionMixin, UpdateView):
     model = Mailing
     form_class = MailingForm
     template_name = 'mailing/form.html'
     success_url = reverse_lazy('mailing:mailing_list')
     required_permissions = ["mailing.can_view_all_mailings"]
+
+    def get_form(self, *args, **kwargs):
+        form = super().get_form(*args, **kwargs)
+
+        user = self.request.user
+
+        # менеджер видит всё
+        if user.has_perm("mailing.can_manage_mailings"):
+            return form
+
+        # обычный пользователь видит только свои данные
+        form.fields['message'].queryset = form.fields['message'].queryset.filter(owner=user)
+        form.fields['recipients'].queryset = form.fields['recipients'].queryset.filter(owner=user)
+
+        return form
 
 
 class MailingDeleteView(LoginRequiredMixin, OwnerOrPermissionMixin, DeleteView):

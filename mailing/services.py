@@ -17,7 +17,7 @@ class MailingServices:
     @staticmethod
     def update_mailing_status(mailing):
 
-        if mailing.status == "Отключена админом":
+        if mailing.status == "Отключена":
             return mailing.status
 
         new_status = MailingServices.calculate_status(mailing)
@@ -29,7 +29,13 @@ class MailingServices:
     @staticmethod
     def can_send_now(mailing):
         now = timezone.now()
-        return mailing.start <= now <= mailing.end
+        if mailing.status == "Отключена" or mailing.status == "Завершена":
+            return False, "Рассылка была отключена менеджером."
+
+        if not (mailing.start <= now <= mailing.end):
+            return False, "Отправка запрещена: текущее время не входит в окно start/end."
+
+        return True, None
 
     @staticmethod
     def send_mailing(mailing, from_email='Apeecks@mail.ru', fail_silently=False):
