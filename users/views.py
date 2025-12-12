@@ -10,10 +10,7 @@ from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views import View
-from django.views.generic import DetailView, ListView, UpdateView
-from django.views.generic.edit import CreateView
-
-from mailing.models import Mailing
+from django.views.generic import DetailView, ListView, UpdateView, TemplateView, FormView
 
 from .forms import CustomUserCreationForm, UserProfileForm
 from .models import CustomUser
@@ -63,7 +60,7 @@ class ActivateView(View):
             return render(request, 'users/activate_invalid.html')
 
 
-class RegisterView(CreateView):
+class RegisterView(FormView):
     template_name = "users/register.html"
     form_class = CustomUserCreationForm
     success_url = reverse_lazy("users:register_done")
@@ -73,7 +70,7 @@ class RegisterView(CreateView):
         user.is_active = False
         user.save()
         self.send_activation_email(user, self.request)
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
     def send_activation_email(self, user, request):
         token = default_token_generator.make_token(user)
@@ -92,7 +89,7 @@ class RegisterView(CreateView):
         send_mail(subject, message, from_email, recipient_list, fail_silently=False)
 
 
-class RegisterDoneView(CreateView):
+class RegisterDoneView(TemplateView):
     template_name = "users/register_done.html"
 
 

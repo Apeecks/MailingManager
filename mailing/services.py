@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 
@@ -38,7 +39,7 @@ class MailingServices:
         return True, None
 
     @staticmethod
-    def send_mailing(mailing, from_email='Apeecks@mail.ru', fail_silently=False):
+    def send_mailing(mailing, fail_silently=False):
         """
         Отправляет письма всем получателям рассылки.
         Создаёт записи MailingIsSuccess для каждой попытки.
@@ -47,6 +48,8 @@ class MailingServices:
         failed = 0
         msg = mailing.message
         recipients = mailing.recipients.all()
+
+        from_email = settings.EMAIL_HOST_USER
 
         for r in recipients:
             try:
