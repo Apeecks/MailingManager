@@ -10,7 +10,7 @@ from django.urls import reverse_lazy
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views import View
-from django.views.generic import DetailView, ListView, UpdateView
+from django.views.generic import DetailView, ListView, UpdateView, TemplateView
 from django.views.generic.edit import CreateView
 
 from mailing.models import Mailing
@@ -92,7 +92,7 @@ class RegisterView(CreateView):
         send_mail(subject, message, from_email, recipient_list, fail_silently=False)
 
 
-class RegisterDoneView(CreateView):
+class RegisterDoneView(TemplateView):
     template_name = "users/register_done.html"
 
 
